@@ -1,0 +1,68 @@
+version: '3'
+
+services:
+  user_app:
+    container_name: user_app
+    build:
+      context: .
+      dockerfile: ./server/Dockerfile
+    depends_on:
+      - db_user
+    ports:
+    - "5000:5000"
+    env_file:
+      - server/.env
+    command: npm run dev
+    restart: always
+
+  lessons_app:
+    container_name: lessons_app
+    build:
+      context: .
+      dockerfile: ./server_2/Dockerfile
+    depends_on:
+      - db_lessons
+    ports:
+    - "27017:27017"
+    env_file:
+      - server_2/.env
+    command: npm run dev
+    restart: always
+    
+  db_lessons:
+    image: postgres:12
+    command:
+      - "postgres"
+      - "-c"
+      - "port=5432"
+    ports:
+    - "5432:5432"
+    restart: always
+    volumes:
+      - pgdata_lessons:/var/lib/postgresql/data
+    environment:
+      PG_DATA: /var/lib/postgresql/data
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "admin"
+      POSTGRES_DB: "online_lessons"
+
+  db_user:
+    image: postgres:12
+    command:
+      - "postgres"
+      - "-c"
+      - "port=6101"
+    ports:
+    - "6101:6101"
+    restart: always
+    volumes:
+      - pgdata_user:/var/lib/postgresql/data
+    environment:
+      PG_DATA: /var/lib/postgresql/data
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "admin"
+      POSTGRES_DB: "language_school"
+
+volumes:
+  pgdata_user:
+  pgdata_lessons:
